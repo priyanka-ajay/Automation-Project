@@ -2,6 +2,8 @@
 myname='Priyanka'
 timestamp=$(date '+%d%m%Y-%H%M%S')
 s3_bucket='upgrad-priyanka-1'
+html_file=/var/www/html/inventory.html
+cron_file=/etc/cron.d/automation
 
 #updates the package information
 apt update -y
@@ -31,3 +33,19 @@ tar -cvf /tmp/${myname}-httpd-logs-${timestamp}.tar /var/log/apache2/*.log
 aws s3 \
 cp /tmp/${myname}-httpd-logs-${timestamp}.tar \
 s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
+
+file_size=`du -kh /tmp/${myname}-httpd-logs-${timestamp}.tar|awk -F' ' '{print $1}'`
+#check if inventory.html is present or not
+if test -f "$html_file"
+then
+        echo "httpd-logs         ${timestamp}         tar        ${file_size}" >> $html_file
+else
+        echo "Log Type         Time Created         Type        Size" > $html_file
+        echo "httpd-logs         ${timestamp}         tar        ${file_size}" >> $html_file
+fi
+#check if cron job is scheduled or not
+if ! test -f "$cron_file"
+then
+        echo "0 0 * * * root /root/Automation_Project/automation.sh" > $cron_file
+fi
+
