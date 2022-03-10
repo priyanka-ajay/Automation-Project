@@ -1,3 +1,4 @@
+#!/bin/bash
 #automation script for upgrad project
 myname='Priyanka'
 timestamp=$(date '+%d%m%Y-%H%M%S')
